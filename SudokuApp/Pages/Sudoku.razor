@@ -5,49 +5,64 @@
 
 <h1>Sudoku</h1>
 
-<BECanvas Width="1220" Height="1220" @ref="canvasReference"></BECanvas>
+<BECanvas Width="3660" Height="3660" @ref="canvasReference"></BECanvas>
 
 @code {
     private Canvas2DContext canvasContext;
 
     protected BECanvasComponent canvasReference;
 
+    private async Task RenderLargGrid()
+    {
+        await canvasContext.BeginPathAsync();
+
+        for(uint i = 0; i < 4; ++i)
+        {
+            double currentDistance = (double)i * 1200.0 + 30.0;
+            await canvasContext.MoveToAsync(0.0, currentDistance);
+            await canvasContext.LineToAsync(3660.0, currentDistance);
+
+            await canvasContext.MoveToAsync(currentDistance, 0.0);
+            await canvasContext.LineToAsync(currentDistance, 3660.0);
+        }
+
+        await canvasContext.StrokeAsync();
+
+    }
+
+    private async Task RenderSmallGrid()
+    {
+        await canvasContext.BeginPathAsync();
+
+        for (uint i = 0; i < 10; ++i)
+        {
+            if(i % 3 == 0)
+            {
+                continue;
+            }
+            double currentDistance = (double)i * 400.0 + 30.0;
+            await canvasContext.MoveToAsync(0.0, currentDistance);
+            await canvasContext.LineToAsync(3660.0, currentDistance);
+
+            await canvasContext.MoveToAsync(currentDistance, 0.0);
+            await canvasContext.LineToAsync(currentDistance, 3660.0);
+        }
+
+        await canvasContext.StrokeAsync();
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         canvasContext = await canvasReference.CreateCanvas2DAsync();
 
-        await canvasContext.SetFillStyleAsync("Black");
+        await canvasContext.SetStrokeStyleAsync("#444444");
+        await canvasContext.SetLineWidthAsync(30.0f);
+
+        await RenderSmallGrid();
+
         await canvasContext.SetStrokeStyleAsync("Black");
-        await canvasContext.SetLineWidthAsync(20.0f);
+        await canvasContext.SetLineWidthAsync(60.0f);
 
-        await canvasContext.BeginPathAsync();
-
-        await canvasContext.MoveToAsync(0.0, 10.0);
-        await canvasContext.LineToAsync(1240.0, 10.0);
-
-        await canvasContext.MoveToAsync(0.0, 410.0);
-        await canvasContext.LineToAsync(1240.0, 410.0);
-
-        await canvasContext.MoveToAsync(0.0, 810.0);
-        await canvasContext.LineToAsync(1240.0, 810.0);
-
-        await canvasContext.MoveToAsync(0.0, 1210.0);
-        await canvasContext.LineToAsync(1240.0, 1210.0);
-
-
-
-        await canvasContext.MoveToAsync(10.0, 0.0);
-        await canvasContext.LineToAsync(10.0, 1240.0);
-
-        await canvasContext.MoveToAsync(410.0, 0.0);
-        await canvasContext.LineToAsync(410.0, 1240.0);
-
-        await canvasContext.MoveToAsync(810.0, 0.0);
-        await canvasContext.LineToAsync(810.0, 1240.0);
-
-        await canvasContext.MoveToAsync(1210.0, 0.0);
-        await canvasContext.LineToAsync(1220.0, 1240.0);
-
-        await canvasContext.StrokeAsync();
+        await RenderLargGrid();
     }
 }
