@@ -1,0 +1,24 @@
+﻿@page "/sudoku"
+@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D;
+
+<h1>Sudoku</h1>
+
+<BECanvas Width="100" Height="100" @ref="canvasReference"></BECanvas>
+
+@code {
+    private Canvas2DContext canvasContext;
+
+    protected BECanvasComponent canvasReference;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        canvasContext = await canvasReference.CreateCanvas2DAsync();
+        await canvasContext.SetShadowBlurAsync(0.0f);
+
+        await canvasContext.SetFillStyleAsync("green");
+
+        await canvasContext.FillRectAsync(20.0f, 20.0f, 40.0f, 40.0f);
+    }
+}
