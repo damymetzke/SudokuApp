@@ -5,7 +5,7 @@
 
 <h1>Sudoku</h1>
 
-<BECanvas Width="100" Height="100" @ref="canvasReference"></BECanvas>
+<BECanvas Width="1220" Height="1220" @ref="canvasReference"></BECanvas>
 
 @code {
     private Canvas2DContext canvasContext;
@@ -15,10 +15,39 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         canvasContext = await canvasReference.CreateCanvas2DAsync();
-        await canvasContext.SetShadowBlurAsync(0.0f);
 
-        await canvasContext.SetFillStyleAsync("green");
+        await canvasContext.SetFillStyleAsync("Black");
+        await canvasContext.SetStrokeStyleAsync("Black");
+        await canvasContext.SetLineWidthAsync(20.0f);
 
-        await canvasContext.FillRectAsync(20.0f, 20.0f, 40.0f, 40.0f);
+        await canvasContext.BeginPathAsync();
+
+        await canvasContext.MoveToAsync(0.0, 10.0);
+        await canvasContext.LineToAsync(1240.0, 10.0);
+
+        await canvasContext.MoveToAsync(0.0, 410.0);
+        await canvasContext.LineToAsync(1240.0, 410.0);
+
+        await canvasContext.MoveToAsync(0.0, 810.0);
+        await canvasContext.LineToAsync(1240.0, 810.0);
+
+        await canvasContext.MoveToAsync(0.0, 1210.0);
+        await canvasContext.LineToAsync(1240.0, 1210.0);
+
+
+
+        await canvasContext.MoveToAsync(10.0, 0.0);
+        await canvasContext.LineToAsync(10.0, 1240.0);
+
+        await canvasContext.MoveToAsync(410.0, 0.0);
+        await canvasContext.LineToAsync(410.0, 1240.0);
+
+        await canvasContext.MoveToAsync(810.0, 0.0);
+        await canvasContext.LineToAsync(810.0, 1240.0);
+
+        await canvasContext.MoveToAsync(1210.0, 0.0);
+        await canvasContext.LineToAsync(1220.0, 1240.0);
+
+        await canvasContext.StrokeAsync();
     }
 }
