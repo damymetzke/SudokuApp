@@ -1,8 +1,13 @@
 ﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
 
+.sudoku-container {
+    width: 50%;
+    height: auto;
+}
+
 canvas
 {
-    width: 50%;
+    width: 100%;
     height: auto;
 }
 
