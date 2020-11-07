@@ -51,6 +51,22 @@
         await canvasContext.ClearRectAsync(0.0, 0.0, 3660.0, 3660.0);
     }
 
+    protected async Task RenderCells()
+    {
+        const float cellSize = 1.0f / 9.0f;
+        for (uint y = 0; y < 9u; ++y)
+        {
+            for (uint x = 0; x < 9u; ++x)
+            {
+                float offsetX = (float)x * cellSize * 3600.0f + 30.0f;
+                float offsetY = (float)y * cellSize * 3600.0f + 30.0f;
+
+                await canvasContext.SetFillStyleAsync($"#{x}0{y}000");
+                await canvasContext.FillRectAsync(offsetX, offsetY, cellSize * 3600.0f, cellSize * 3600.0f);
+            }
+        }
+    }
+
     protected async Task RenderGrid()
     {
         // Small grid
@@ -98,6 +114,7 @@
     private async Task RenderAll()
     {
         await ClearCanvas();
+        await RenderCells();
         await RenderGrid();
     }
 }
