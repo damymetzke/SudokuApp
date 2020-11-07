@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directory: "/SudokuApp"
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Europe/Amsterdam
+    open-pull-requests-limit: 99
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "08:00"
+      timezone: Europe/Amsterdam
