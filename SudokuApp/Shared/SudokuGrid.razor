@@ -29,7 +29,7 @@
 
     private async Task UpdateHoverState(MouseEventArgs mouseEvent)
     {
-        await RenderGrid();
+        await RenderAll();
 
         var bounds = await JS.InvokeAsync<BoundingRect>("MyDOMGetBoundingClientRect", new object[] { sudokuContainerReference });
 
@@ -39,26 +39,24 @@
         );
     }
 
-    private async Task RenderLargGrid()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await canvasContext.BeginPathAsync();
+        canvasContext = await canvasReference.CreateCanvas2DAsync();
 
-        for (uint i = 0; i < 4; ++i)
-        {
-            double currentDistance = (double)i * 1200.0 + 30.0;
-            await canvasContext.MoveToAsync(0.0, currentDistance);
-            await canvasContext.LineToAsync(3660.0, currentDistance);
-
-            await canvasContext.MoveToAsync(currentDistance, 0.0);
-            await canvasContext.LineToAsync(currentDistance, 3660.0);
-        }
-
-        await canvasContext.StrokeAsync();
-
+        await RenderAll();
     }
 
-    private async Task RenderSmallGrid()
+    private async Task ClearCanvas()
     {
+        await canvasContext.ClearRectAsync(0.0, 0.0, 3660.0, 3660.0);
+    }
+
+    protected async Task RenderGrid()
+    {
+        // Small grid
+        await canvasContext.SetStrokeStyleAsync("#444444");
+        await canvasContext.SetLineWidthAsync(30.0f);
+
         await canvasContext.BeginPathAsync();
 
         for (uint i = 0; i < 10; ++i)
@@ -76,26 +74,30 @@
         }
 
         await canvasContext.StrokeAsync();
-    }
 
-    private async Task RenderGrid()
-    {
-        await canvasContext.ClearRectAsync(0.0, 0.0, 3660.0, 3660.0);
-        await canvasContext.SetStrokeStyleAsync("#444444");
-        await canvasContext.SetLineWidthAsync(30.0f);
 
-        await RenderSmallGrid();
-
+        // Large grid
         await canvasContext.SetStrokeStyleAsync("Black");
         await canvasContext.SetLineWidthAsync(60.0f);
 
-        await RenderLargGrid();
+        await canvasContext.BeginPathAsync();
+
+        for (uint i = 0; i < 4; ++i)
+        {
+            double currentDistance = (double)i * 1200.0 + 30.0;
+            await canvasContext.MoveToAsync(0.0, currentDistance);
+            await canvasContext.LineToAsync(3660.0, currentDistance);
+
+            await canvasContext.MoveToAsync(currentDistance, 0.0);
+            await canvasContext.LineToAsync(currentDistance, 3660.0);
+        }
+
+        await canvasContext.StrokeAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task RenderAll()
     {
-        canvasContext = await canvasReference.CreateCanvas2DAsync();
-
+        await ClearCanvas();
         await RenderGrid();
     }
 }
