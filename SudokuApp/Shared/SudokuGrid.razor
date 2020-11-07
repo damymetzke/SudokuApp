@@ -1,0 +1,101 @@
+﻿@using Blazor.Extensions;
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D;
+@inject IJSRuntime JS;
+
+<div class="sudoku-container" @onmousemove="UpdateHoverState" @ref="sudokuContainerReference">
+    <BECanvas Width="3660" Height="3660" @ref="canvasReference"></BECanvas>
+</div>
+
+
+@code {
+    public class BoundingRect
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public double Top { get; set; }
+        public double Right { get; set; }
+        public double Bottom { get; set; }
+        public double Left { get; set; }
+    }
+
+    private Canvas2DContext canvasContext;
+
+    protected BECanvasComponent canvasReference;
+
+    protected ElementReference sudokuContainerReference;
+
+    private async Task UpdateHoverState(MouseEventArgs mouseEvent)
+    {
+        await RenderGrid();
+
+        var bounds = await JS.InvokeAsync<BoundingRect>("MyDOMGetBoundingClientRect", new object[] { sudokuContainerReference });
+
+        System.Numerics.Vector2 relativePosition = new System.Numerics.Vector2(
+            (float)((mouseEvent.ClientX - bounds.Left) / bounds.Width),
+            (float)((mouseEvent.ClientY - bounds.Top) / bounds.Height)
+        );
+    }
+
+    private async Task RenderLargGrid()
+    {
+        await canvasContext.BeginPathAsync();
+
+        for (uint i = 0; i < 4; ++i)
+        {
+            double currentDistance = (double)i * 1200.0 + 30.0;
+            await canvasContext.MoveToAsync(0.0, currentDistance);
+            await canvasContext.LineToAsync(3660.0, currentDistance);
+
+            await canvasContext.MoveToAsync(currentDistance, 0.0);
+            await canvasContext.LineToAsync(currentDistance, 3660.0);
+        }
+
+        await canvasContext.StrokeAsync();
+
+    }
+
+    private async Task RenderSmallGrid()
+    {
+        await canvasContext.BeginPathAsync();
+
+        for (uint i = 0; i < 10; ++i)
+        {
+            if (i % 3 == 0)
+            {
+                continue;
+            }
+            double currentDistance = (double)i * 400.0 + 30.0;
+            await canvasContext.MoveToAsync(0.0, currentDistance);
+            await canvasContext.LineToAsync(3660.0, currentDistance);
+
+            await canvasContext.MoveToAsync(currentDistance, 0.0);
+            await canvasContext.LineToAsync(currentDistance, 3660.0);
+        }
+
+        await canvasContext.StrokeAsync();
+    }
+
+    private async Task RenderGrid()
+    {
+        await canvasContext.ClearRectAsync(0.0, 0.0, 3660.0, 3660.0);
+        await canvasContext.SetStrokeStyleAsync("#444444");
+        await canvasContext.SetLineWidthAsync(30.0f);
+
+        await RenderSmallGrid();
+
+        await canvasContext.SetStrokeStyleAsync("Black");
+        await canvasContext.SetLineWidthAsync(60.0f);
+
+        await RenderLargGrid();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        canvasContext = await canvasReference.CreateCanvas2DAsync();
+
+        await RenderGrid();
+    }
+}
