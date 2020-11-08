@@ -27,16 +27,24 @@
 
     protected ElementReference sudokuContainerReference;
 
+    private int focussedCellX = -1;
+    private int focussedCellY = -1;
+
+    System.Threading.Timer renderLoopTimer;
+
     private async Task UpdateHoverState(MouseEventArgs mouseEvent)
     {
-        await RenderAll();
-
         var bounds = await JS.InvokeAsync<BoundingRect>("MyDOMGetBoundingClientRect", new object[] { sudokuContainerReference });
 
         System.Numerics.Vector2 relativePosition = new System.Numerics.Vector2(
             (float)((mouseEvent.ClientX - bounds.Left) / bounds.Width),
             (float)((mouseEvent.ClientY - bounds.Top) / bounds.Height)
         );
+
+        focussedCellX = (int)(relativePosition.X * 9.0f);
+        focussedCellY = (int)(relativePosition.Y * 9.0f);
+
+        await RenderAll();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -61,7 +69,14 @@
                 float offsetX = (float)x * cellSize * 3600.0f + 30.0f;
                 float offsetY = (float)y * cellSize * 3600.0f + 30.0f;
 
-                await canvasContext.SetFillStyleAsync($"#{x}0{y}000");
+                string fillStyle = "#ffffff";
+
+                if (x == focussedCellX && y == focussedCellY)
+                {
+                    fillStyle = "#999999";
+                }
+
+                await canvasContext.SetFillStyleAsync(fillStyle);
                 await canvasContext.FillRectAsync(offsetX, offsetY, cellSize * 3600.0f, cellSize * 3600.0f);
             }
         }
